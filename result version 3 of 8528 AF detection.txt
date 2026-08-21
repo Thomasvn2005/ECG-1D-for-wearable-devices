@@ -1,0 +1,89 @@
+"D:\Pycharm2026\Project testing 8528\.venv\Scripts\python.exe" "D:\Pycharm2026\Project testing 8528\8528 ResNet50.py" 
+======================================================================
+[DEVICE] GPU: NVIDIA GeForce RTX 5050 Laptop GPU | Available VRAM: 7.96 GB
+======================================================================
+[INFO] Loading reference label file: D:\af-classification-from-a-short-single-lead-ecg-recording-the-physionet-computing-in-cardiology-challenge-2017-1.0.0\training2017\REFERENCE.csv
+[INFO] Filtering and loading all ECG records into RAM...
+[INFO] Successfully loaded & filtered 8528 records in 8.59s.
+
+[DATASET DISTRIBUTION]
+ - Train set      : 5969 samples (Non-AF: 5453, AF: 516)
+ - Validation set : 853 samples (Non-AF: 779, AF: 74)
+ - Internal Test  : 1706 samples (Non-AF: 1558, AF: 148)
+
+======================================================================
+ STARTING TRAINING LOOP (SE-RESNET50 + BiGRU + FOCAL LOSS)
+======================================================================
+Epoch [01/45] | Train Loss: 0.0585 | Val AF -> F1: 0.4037 (Prec: 0.629, Rec: 0.297) | LR: 0.001000
+Epoch [02/45] | Train Loss: 0.0353 | Val AF -> F1: 0.6429 (Prec: 0.574, Rec: 0.730) | LR: 0.000999
+Epoch [03/45] | Train Loss: 0.0280 | Val AF -> F1: 0.5596 (Prec: 0.424, Rec: 0.824) | LR: 0.000995
+Epoch [04/45] | Train Loss: 0.0261 | Val AF -> F1: 0.6795 (Prec: 0.646, Rec: 0.716) | LR: 0.000989
+Epoch [05/45] | Train Loss: 0.0198 | Val AF -> F1: 0.7532 (Prec: 0.725, Rec: 0.784) | LR: 0.000981
+Epoch [06/45] | Train Loss: 0.0199 | Val AF -> F1: 0.6557 (Prec: 0.550, Rec: 0.811) | LR: 0.000970
+Epoch [07/45] | Train Loss: 0.0170 | Val AF -> F1: 0.4324 (Prec: 0.278, Rec: 0.973) | LR: 0.000957
+Epoch [08/45] | Train Loss: 0.0170 | Val AF -> F1: 0.7349 (Prec: 0.663, Rec: 0.824) | LR: 0.000942
+Epoch [09/45] | Train Loss: 0.0165 | Val AF -> F1: 0.6667 (Prec: 0.548, Rec: 0.851) | LR: 0.000924
+Epoch [10/45] | Train Loss: 0.0163 | Val AF -> F1: 0.6294 (Prec: 0.504, Rec: 0.838) | LR: 0.000905
+Epoch [11/45] | Train Loss: 0.0140 | Val AF -> F1: 0.7654 (Prec: 0.705, Rec: 0.838) | LR: 0.000883
+Epoch [12/45] | Train Loss: 0.0144 | Val AF -> F1: 0.7692 (Prec: 0.732, Rec: 0.811) | LR: 0.000860
+Epoch [13/45] | Train Loss: 0.0141 | Val AF -> F1: 0.5847 (Prec: 0.426, Rec: 0.932) | LR: 0.000835
+Epoch [14/45] | Train Loss: 0.0135 | Val AF -> F1: 0.7714 (Prec: 0.818, Rec: 0.730) | LR: 0.000808
+Epoch [15/45] | Train Loss: 0.0123 | Val AF -> F1: 0.5246 (Prec: 0.376, Rec: 0.865) | LR: 0.000780
+Epoch [16/45] | Train Loss: 0.0130 | Val AF -> F1: 0.6632 (Prec: 0.538, Rec: 0.865) | LR: 0.000750
+Epoch [17/45] | Train Loss: 0.0122 | Val AF -> F1: 0.5913 (Prec: 0.436, Rec: 0.919) | LR: 0.000719
+Epoch [18/45] | Train Loss: 0.0119 | Val AF -> F1: 0.8252 (Prec: 0.855, Rec: 0.797) | LR: 0.000688
+Epoch [19/45] | Train Loss: 0.0117 | Val AF -> F1: 0.7349 (Prec: 0.663, Rec: 0.824) | LR: 0.000655
+Epoch [20/45] | Train Loss: 0.0110 | Val AF -> F1: 0.7805 (Prec: 0.711, Rec: 0.865) | LR: 0.000621
+Epoch [21/45] | Train Loss: 0.0104 | Val AF -> F1: 0.6977 (Prec: 0.612, Rec: 0.811) | LR: 0.000587
+Epoch [22/45] | Train Loss: 0.0102 | Val AF -> F1: 0.8182 (Prec: 0.787, Rec: 0.851) | LR: 0.000553
+Epoch [23/45] | Train Loss: 0.0090 | Val AF -> F1: 0.8212 (Prec: 0.805, Rec: 0.838) | LR: 0.000518
+Epoch [24/45] | Train Loss: 0.0087 | Val AF -> F1: 0.7651 (Prec: 0.760, Rec: 0.770) | LR: 0.000483
+Epoch [25/45] | Train Loss: 0.0084 | Val AF -> F1: 0.8054 (Prec: 0.800, Rec: 0.811) | LR: 0.000448
+Epoch [26/45] | Train Loss: 0.0083 | Val AF -> F1: 0.8105 (Prec: 0.785, Rec: 0.838) | LR: 0.000414
+Epoch [27/45] | Train Loss: 0.0070 | Val AF -> F1: 0.7625 (Prec: 0.709, Rec: 0.824) | LR: 0.000380
+Epoch [28/45] | Train Loss: 0.0073 | Val AF -> F1: 0.7682 (Prec: 0.753, Rec: 0.784) | LR: 0.000346
+Epoch [29/45] | Train Loss: 0.0066 | Val AF -> F1: 0.7632 (Prec: 0.744, Rec: 0.784) | LR: 0.000313
+Epoch [30/45] | Train Loss: 0.0060 | Val AF -> F1: 0.7692 (Prec: 0.732, Rec: 0.811) | LR: 0.000282
+Epoch [31/45] | Train Loss: 0.0054 | Val AF -> F1: 0.7582 (Prec: 0.734, Rec: 0.784) | LR: 0.000251
+Epoch [32/45] | Train Loss: 0.0051 | Val AF -> F1: 0.7595 (Prec: 0.714, Rec: 0.811) | LR: 0.000221
+Epoch [33/45] | Train Loss: 0.0066 | Val AF -> F1: 0.7500 (Prec: 0.698, Rec: 0.811) | LR: 0.000193
+Epoch [34/45] | Train Loss: 0.0056 | Val AF -> F1: 0.7500 (Prec: 0.698, Rec: 0.811) | LR: 0.000166
+Epoch [35/45] | Train Loss: 0.0047 | Val AF -> F1: 0.7838 (Prec: 0.784, Rec: 0.784) | LR: 0.000141
+Epoch [36/45] | Train Loss: 0.0037 | Val AF -> F1: 0.7712 (Prec: 0.747, Rec: 0.797) | LR: 0.000118
+Epoch [37/45] | Train Loss: 0.0033 | Val AF -> F1: 0.7972 (Prec: 0.826, Rec: 0.770) | LR: 0.000096
+Epoch [38/45] | Train Loss: 0.0033 | Val AF -> F1: 0.7838 (Prec: 0.784, Rec: 0.784) | LR: 0.000077
+Epoch [39/45] | Train Loss: 0.0028 | Val AF -> F1: 0.7891 (Prec: 0.795, Rec: 0.784) | LR: 0.000059
+Epoch [40/45] | Train Loss: 0.0030 | Val AF -> F1: 0.7755 (Prec: 0.781, Rec: 0.770) | LR: 0.000044
+Epoch [41/45] | Train Loss: 0.0025 | Val AF -> F1: 0.7945 (Prec: 0.806, Rec: 0.784) | LR: 0.000031
+Epoch [42/45] | Train Loss: 0.0023 | Val AF -> F1: 0.7973 (Prec: 0.797, Rec: 0.797) | LR: 0.000020
+Epoch [43/45] | Train Loss: 0.0024 | Val AF -> F1: 0.7973 (Prec: 0.797, Rec: 0.797) | LR: 0.000012
+Epoch [44/45] | Train Loss: 0.0023 | Val AF -> F1: 0.7973 (Prec: 0.797, Rec: 0.797) | LR: 0.000006
+Epoch [45/45] | Train Loss: 0.0024 | Val AF -> F1: 0.8027 (Prec: 0.808, Rec: 0.797) | LR: 0.000002
+
+======================================================================
+ TRAINING COMPLETE! Best Val F1 = 0.8252
+ Model weights saved to: best_resnet50_af.pth
+======================================================================
+
+[INFO] Loading best checkpoint for threshold calibration & evaluation...
+[INFO] Optimal Decision Threshold from Validation: 0.54 (Calibrated Val F1: 0.8358)
+
+######################################################################
+ FINAL SOTA EVALUATION ON INTERNAL TEST SET (THRESHOLD = 0.54)
+######################################################################
+              precision    recall  f1-score   support
+
+  Non-AF (0)     0.9700    0.9763    0.9731      1558
+      AF (1)     0.7319    0.6824    0.7063       148
+
+    accuracy                         0.9508      1706
+   macro avg     0.8510    0.8293    0.8397      1706
+weighted avg     0.9494    0.9508    0.9500      1706
+
+Confusion Matrix:
+                 Predicted Non-AF   Predicted AF
+Actual Non-AF       1521              37
+Actual AF           47                101
+######################################################################
+
+Process finished with exit code 0

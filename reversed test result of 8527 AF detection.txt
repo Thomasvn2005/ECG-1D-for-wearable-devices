@@ -1,0 +1,37 @@
+"D:\Pycharm2026\Project testing 8528\.venv\Scripts\python.exe" "D:\Pycharm2026\Project testing 8528\PTB_XL 21837.py" 
+======================================================================
+[DEVICE] Hardware Acceleration: NVIDIA GeForce RTX 5050 Laptop GPU | VRAM: 7.96 GB
+======================================================================
+[INFO] Reading annotation file: D:\ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3\ptbxl_database.csv
+Loading PTB-XL:   0%|          | 0/21799 [00:00<?, ?it/s][INFO] Parsing and extracting Lead II signals for 21799 records...
+Loading PTB-XL: 100%|██████████| 21799/21799 [01:46<00:00, 204.82it/s]
+[INFO] Successfully loaded & filtered 21799 records in 106.43s.
+
+[EXTERNAL TEST DISTRIBUTION - PTB-XL]
+ - Total Test Samples          : 21799
+ - Negative Class (Non-AF: 0)  : 20285
+ - Positive Class (AFIB: 1)    : 1514
+
+[INFO] Loading pretrained model weights from: best_resnet50_af.pth
+[INFO] Executing zero-shot inference on 21,837 samples...
+[INFO] Inference completed in 32.49s!
+
+######################################################################
+ EXTERNAL VALIDATION REPORT ON PTB-XL DATASET (THRESHOLD = 0.54)
+######################################################################
+              precision    recall  f1-score   support
+
+  Non-AF (0)     0.9837    0.9905    0.9871     20285
+      AF (1)     0.8602    0.7801    0.8182      1514
+
+    accuracy                         0.9759     21799
+   macro avg     0.9219    0.8853    0.9026     21799
+weighted avg     0.9751    0.9759    0.9754     21799
+
+Confusion Matrix:s
+                 Predicted Non-AF   Predicted AF
+Actual Non-AF       20093             192
+Actual AF           333               1181
+######################################################################
+
+Process finished with exit code 0
