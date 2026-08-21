@@ -1,0 +1,98 @@
+"D:\Pycharm2026\Project testing 8528\.venv\Scripts\python.exe" "D:\Pycharm2026\Project testing 8528\8528 ResNet50 AF classification.py" 
+================================================================================
+[DEVICE] GPU Acceleration: NVIDIA GeForce RTX 5050 Laptop GPU | VRAM: 7.96 GB
+================================================================================
+[INFO] Loading reference annotation file: D:\af-classification-from-a-short-single-lead-ecg-recording-the-physionet-computing-in-cardiology-challenge-2017-1.0.0\training2017\REFERENCE.csv
+[INFO] Filtering and loading all single-lead ECG recordings into RAM...
+[INFO] Successfully loaded & filtered 8528 records in 11.06s.
+
+[CLASS DISTRIBUTION]
+ - Normal (N)  : Train = 3535  | Val = 505  | Test = 1010
+ - AF (A)      : Train = 516   | Val = 74   | Test = 148
+ - Other (O)   : Train = 1719  | Val = 246  | Test = 491
+ - Noisy (~)   : Train = 199   | Val = 28   | Test = 57
+
+================================================================================
+ STARTING SOTA 4-CLASS TRAINING LOOP (SE-RESNET50 + DUAL-POOL BiGRU)
+================================================================================
+Epoch [01/50] | Loss: 0.4321 | Val Challenge F1: 0.4470 (N:0.741, A:0.386, O:0.215, ~:0.270) | LR: 0.000333
+Epoch [02/50] | Loss: 0.3683 | Val Challenge F1: 0.4780 (N:0.806, A:0.209, O:0.419, ~:0.361) | LR: 0.000667
+Epoch [03/50] | Loss: 0.3218 | Val Challenge F1: 0.5718 (N:0.754, A:0.540, O:0.421, ~:0.418) | LR: 0.001000
+Epoch [04/50] | Loss: 0.2945 | Val Challenge F1: 0.5590 (N:0.825, A:0.408, O:0.444, ~:0.415) | LR: 0.001000
+Epoch [05/50] | Loss: 0.2660 | Val Challenge F1: 0.5752 (N:0.824, A:0.569, O:0.332, ~:0.372) | LR: 0.000999
+Epoch [06/50] | Loss: 0.2627 | Val Challenge F1: 0.6667 (N:0.845, A:0.672, O:0.483, ~:0.365) | LR: 0.000996
+Epoch [07/50] | Loss: 0.2490 | Val Challenge F1: 0.7137 (N:0.857, A:0.737, O:0.547, ~:0.407) | LR: 0.000990
+Epoch [08/50] | Loss: 0.2326 | Val Challenge F1: 0.6888 (N:0.853, A:0.679, O:0.534, ~:0.344) | LR: 0.000982
+Epoch [09/50] | Loss: 0.2276 | Val Challenge F1: 0.6216 (N:0.814, A:0.562, O:0.489, ~:0.440) | LR: 0.000972
+Epoch [10/50] | Loss: 0.2304 | Val Challenge F1: 0.6905 (N:0.849, A:0.690, O:0.533, ~:0.406) | LR: 0.000960
+Epoch [11/50] | Loss: 0.2218 | Val Challenge F1: 0.6380 (N:0.838, A:0.656, O:0.420, ~:0.339) | LR: 0.000946
+Epoch [12/50] | Loss: 0.2161 | Val Challenge F1: 0.7213 (N:0.871, A:0.724, O:0.569, ~:0.421) | LR: 0.000930
+Epoch [13/50] | Loss: 0.2009 | Val Challenge F1: 0.7363 (N:0.857, A:0.741, O:0.611, ~:0.472) | LR: 0.000912
+Epoch [14/50] | Loss: 0.2090 | Val Challenge F1: 0.7331 (N:0.871, A:0.711, O:0.617, ~:0.373) | LR: 0.000892
+Epoch [15/50] | Loss: 0.1973 | Val Challenge F1: 0.6743 (N:0.857, A:0.656, O:0.510, ~:0.400) | LR: 0.000871
+Epoch [16/50] | Loss: 0.1978 | Val Challenge F1: 0.4898 (N:0.741, A:0.333, O:0.395, ~:0.400) | LR: 0.000848
+Epoch [17/50] | Loss: 0.2027 | Val Challenge F1: 0.7404 (N:0.874, A:0.733, O:0.613, ~:0.386) | LR: 0.000823
+Epoch [18/50] | Loss: 0.1947 | Val Challenge F1: 0.6195 (N:0.627, A:0.679, O:0.552, ~:0.353) | LR: 0.000797
+Epoch [19/50] | Loss: 0.1915 | Val Challenge F1: 0.7469 (N:0.861, A:0.743, O:0.637, ~:0.414) | LR: 0.000769
+Epoch [20/50] | Loss: 0.1799 | Val Challenge F1: 0.7696 (N:0.877, A:0.762, O:0.670, ~:0.368) | LR: 0.000740
+Epoch [21/50] | Loss: 0.1827 | Val Challenge F1: 0.7612 (N:0.869, A:0.738, O:0.676, ~:0.438) | LR: 0.000710
+Epoch [22/50] | Loss: 0.1708 | Val Challenge F1: 0.7686 (N:0.870, A:0.745, O:0.691, ~:0.419) | LR: 0.000680
+Epoch [23/50] | Loss: 0.1722 | Val Challenge F1: 0.7297 (N:0.872, A:0.686, O:0.631, ~:0.421) | LR: 0.000648
+Epoch [24/50] | Loss: 0.1674 | Val Challenge F1: 0.7806 (N:0.869, A:0.773, O:0.700, ~:0.431) | LR: 0.000616
+Epoch [25/50] | Loss: 0.1606 | Val Challenge F1: 0.7768 (N:0.868, A:0.764, O:0.698, ~:0.400) | LR: 0.000583
+Epoch [26/50] | Loss: 0.1596 | Val Challenge F1: 0.7519 (N:0.864, A:0.761, O:0.630, ~:0.427) | LR: 0.000550
+Epoch [27/50] | Loss: 0.1534 | Val Challenge F1: 0.7830 (N:0.861, A:0.783, O:0.706, ~:0.414) | LR: 0.000517
+Epoch [28/50] | Loss: 0.1541 | Val Challenge F1: 0.7257 (N:0.847, A:0.667, O:0.664, ~:0.432) | LR: 0.000483
+Epoch [29/50] | Loss: 0.1524 | Val Challenge F1: 0.7641 (N:0.873, A:0.741, O:0.679, ~:0.413) | LR: 0.000450
+Epoch [30/50] | Loss: 0.1462 | Val Challenge F1: 0.7850 (N:0.878, A:0.775, O:0.703, ~:0.386) | LR: 0.000417
+Epoch [31/50] | Loss: 0.1402 | Val Challenge F1: 0.7802 (N:0.845, A:0.811, O:0.684, ~:0.479) | LR: 0.000384
+Epoch [32/50] | Loss: 0.1379 | Val Challenge F1: 0.7972 (N:0.879, A:0.795, O:0.719, ~:0.433) | LR: 0.000352
+Epoch [33/50] | Loss: 0.1341 | Val Challenge F1: 0.7840 (N:0.876, A:0.764, O:0.712, ~:0.429) | LR: 0.000320
+Epoch [34/50] | Loss: 0.1270 | Val Challenge F1: 0.7474 (N:0.842, A:0.724, O:0.676, ~:0.400) | LR: 0.000290
+Epoch [35/50] | Loss: 0.1245 | Val Challenge F1: 0.7927 (N:0.880, A:0.795, O:0.703, ~:0.411) | LR: 0.000260
+Epoch [36/50] | Loss: 0.1219 | Val Challenge F1: 0.7658 (N:0.868, A:0.733, O:0.696, ~:0.413) | LR: 0.000231
+Epoch [37/50] | Loss: 0.1166 | Val Challenge F1: 0.7890 (N:0.877, A:0.783, O:0.706, ~:0.407) | LR: 0.000203
+Epoch [38/50] | Loss: 0.1103 | Val Challenge F1: 0.7897 (N:0.875, A:0.776, O:0.719, ~:0.415) | LR: 0.000177
+Epoch [39/50] | Loss: 0.1064 | Val Challenge F1: 0.7756 (N:0.857, A:0.768, O:0.701, ~:0.333) | LR: 0.000152
+Epoch [40/50] | Loss: 0.1003 | Val Challenge F1: 0.7805 (N:0.871, A:0.767, O:0.703, ~:0.346) | LR: 0.000129
+Epoch [41/50] | Loss: 0.0981 | Val Challenge F1: 0.7906 (N:0.871, A:0.786, O:0.715, ~:0.360) | LR: 0.000108
+Epoch [42/50] | Loss: 0.0946 | Val Challenge F1: 0.7744 (N:0.860, A:0.764, O:0.700, ~:0.316) | LR: 0.000088
+Epoch [43/50] | Loss: 0.0953 | Val Challenge F1: 0.7742 (N:0.859, A:0.769, O:0.694, ~:0.346) | LR: 0.000070
+Epoch [44/50] | Loss: 0.0882 | Val Challenge F1: 0.7823 (N:0.869, A:0.772, O:0.705, ~:0.360) | LR: 0.000054
+Epoch [45/50] | Loss: 0.0840 | Val Challenge F1: 0.7859 (N:0.879, A:0.767, O:0.712, ~:0.360) | LR: 0.000040
+Epoch [46/50] | Loss: 0.0845 | Val Challenge F1: 0.7776 (N:0.871, A:0.759, O:0.703, ~:0.353) | LR: 0.000028
+Epoch [47/50] | Loss: 0.0813 | Val Challenge F1: 0.7868 (N:0.870, A:0.783, O:0.707, ~:0.340) | LR: 0.000018
+Epoch [48/50] | Loss: 0.0811 | Val Challenge F1: 0.7794 (N:0.870, A:0.772, O:0.696, ~:0.346) | LR: 0.000010
+Epoch [49/50] | Loss: 0.0794 | Val Challenge F1: 0.7794 (N:0.870, A:0.772, O:0.696, ~:0.346) | LR: 0.000004
+Epoch [50/50] | Loss: 0.0796 | Val Challenge F1: 0.7757 (N:0.870, A:0.764, O:0.693, ~:0.346) | LR: 0.000001
+
+================================================================================
+ TRAINING COMPLETE! Best Validation Challenge F1 = 0.7972
+ Model saved to: best_resnet50_4class_sota.pth
+================================================================================
+
+[INFO] Loading best model weights for holdout test evaluation...
+
+################################################################################
+ FINAL SOTA BENCHMARK ON TEST SET (CHALLENGE F1 = 0.7588)
+################################################################################
+              precision    recall  f1-score   support
+
+  Normal (N)     0.8493    0.8931    0.8707      1010
+      AF (A)     0.7863    0.6959    0.7384       148
+   Other (O)     0.7210    0.6212    0.6674       491
+   Noisy (~)     0.4556    0.7193    0.5578        57
+
+    accuracy                         0.7919      1706
+   macro avg     0.7030    0.7324    0.7086      1706
+weighted avg     0.7938    0.7919    0.7902      1706
+
+Confusion Matrix:
+                 Predicted N   Predicted A   Predicted O   Predicted ~
+Actual Normal (N) 902           2             80            26
+Actual AF (A)     7             103           34            4
+Actual Other (O)  142           25            305           19
+Actual Noisy (~)  11            1             4             41
+################################################################################
+
+Process finished with exit code -1073740791 (0xC0000409)
