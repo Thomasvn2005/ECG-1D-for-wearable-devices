@@ -1,0 +1,127 @@
+"D:\Pycharm2026\Project testing 8528\.venv\Scripts\python.exe" "D:\Pycharm2026\Project testing 8528\AF detection model with IRIDIA-AF.py" 
+
+=================================
+BUILDING IRIDIA-AF WINDOW INDEX
+=================================
+Indexing IRIDIA records: 100%|██████████| 167/167 [00:41<00:00,  4.03it/s]
+
+Window index saved:
+D:\Datasets\IRIDIA-AF\results_resnet50\window_index_60s_clean_0.80.csv
+
+Window duration: 60 seconds
+Samples/window: 12000
+Dropped transition windows: 565
+
+=================================
+DATASET SUMMARY
+=================================
+train | patients=106 | windows= 279,503 | non-AF= 210,541 | AF=  68,962 | AF=24.67%
+  val | patients= 23 | windows=  59,469 | non-AF=  47,224 | AF=  12,245 | AF=20.59%
+ test | patients= 23 | windows=  61,625 | non-AF=  46,571 | AF=  15,054 | AF=24.43%
+
+=================================
+SMOKE TEST ENABLED
+Only a subset will be used.
+Training for only 2 epochs.
+=================================
+
+=================================
+ACTIVE TRAINING DATA
+=================================
+train: windows=12,000, patients=106, non-AF=9,039, AF=2,961
+  val: windows=3,000, patients=23, non-AF=2,382, AF=618
+ test: windows=3,000, patients=23, non-AF=2,267, AF=733
+
+=================================
+DEVICE
+=================================
+PyTorch version: 2.12.0.dev20260408+cu128
+Device: cuda
+GPU: NVIDIA GeForce RTX 5050 Laptop GPU
+VRAM: 7.96 GB
+PyTorch CUDA: 12.8
+AMP FP16: True
+
+=================================
+FIRST BATCH CHECK
+=================================
+ECG tensor shape: (4, 1, 12000)
+Label tensor shape: (4,)
+ECG mean: -4.4190883841110917e-07
+ECG std: 1.000010371208191
+
+=================================
+MODEL
+=================================
+Architecture: ResNet50-1D + SE
+Parameters: 18,487,793
+Physical batch size: 4
+Gradient accumulation: 8
+Effective batch size: 32
+BCE positive weight: 3.0527
+
+=================================
+START TRAINING
+=================================
+Epoch 1/2: 100%|██████████| 3000/3000 [04:40<00:00, 10.68it/s, VRAM=0.27G, loss=0.2396]
+
+Epoch 1: train_loss=0.23959 | val_loss=0.08427 | AUROC=0.9987 | AUPRC=0.9934 | F1@0.5=0.9433 | LR=3.00e-04
+Saved BEST model:
+D:\Datasets\IRIDIA-AF\results_resnet50\best_model_smoke.pt
+Epoch 2/2: 100%|██████████| 3000/3000 [04:55<00:00, 10.15it/s, VRAM=0.27G, loss=0.0912]
+                                                           
+Epoch 2: train_loss=0.09118 | val_loss=0.04102 | AUROC=0.9992 | AUPRC=0.9958 | F1@0.5=0.9886 | LR=3.00e-04
+Saved BEST model:
+D:\Datasets\IRIDIA-AF\results_resnet50\best_model_smoke.pt
+                                                           
+=================================
+VALIDATION RESULTS
+=================================
+{
+  "threshold": 0.25537109375,
+  "n": 3000,
+  "accuracy": 0.9953333333333333,
+  "sensitivity_recall": 0.988673139158576,
+  "specificity": 0.9970612930310663,
+  "precision_ppv": 0.988673139158576,
+  "f1": 0.988673139158576,
+  "auroc": 0.9991797298509044,
+  "auprc": 0.9957970205262918,
+  "tn": 2375,
+  "fp": 7,
+  "fn": 7,
+  "tp": 611,
+  "loss": 0.04101964690821478
+}
+
+=================================
+INTERNAL TEST RESULTS
+UNSEEN IRIDIA-AF PATIENTS
+=================================
+{
+  "threshold": 0.25537109375,
+  "n": 3000,
+  "accuracy": 0.985,
+  "sensitivity_recall": 0.9549795361527967,
+  "specificity": 0.9947066607851787,
+  "precision_ppv": 0.9831460674157303,
+  "f1": 0.9688581314878892,
+  "auroc": 0.9963230670074401,
+  "auprc": 0.9934829144403916,
+  "tn": 2255,
+  "fp": 12,
+  "fn": 33,
+  "tp": 700,
+  "loss": 0.1758494215462124,
+  "threshold_chosen_on": "validation",
+  "threshold_method": "youden"
+}
+
+=================================
+FINISHED
+=================================
+Results directory:
+D:\Datasets\IRIDIA-AF\results_resnet50
+
+Process finished with exit code 0
+\
