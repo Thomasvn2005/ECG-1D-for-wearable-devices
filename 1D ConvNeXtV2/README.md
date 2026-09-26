@@ -3,7 +3,7 @@ Plan train model AI hiện tại để phát hiện rung nhĩ AF
 Giai đoạn hiện tại ===> Train model AI sử dụng 1D ConvNextV2 trên các tập Dataset chuẩn và test trên các tập Dataset chuẩn khác
 https://www.mdpi.com/1424-8220/25/13/4109 ( link bài báo Atrial Fibrillation and Atrial Flutter Detection Using Deep Learning
 by Dimitri Kraft , andPeter Rumm )
-
+link code  GG colab đang sử dụng:  https://colab.research.google.com/drive/1v9Sj8JcebEM4shU1_jjh4y0maMgZGHby?usp=sharing
 Mô hình hiện tại bao gồm:
 
   Training dataset: PTB-XL
@@ -32,4 +32,4 @@ Trong đó các file quan trọng bao gồm:
 - preprocessed: chứa dữ liệu ECG đã tiền xử lý của 3 dataset,  định dạng  125 Hz, cửa sổ 10 s, HDF5 và nhãn tương ứng.
 - final_model_epoch20.pth: file model 1D ConvNeXtV2 sau khi train 20 epoch, có trọng số model và một số thông tin checkpoint như optimizer, epoch, metric validation.
 - mit_afdb_test_results.npz: chứa kết quả test trên MIT-AFDB, như y_true, xác suất p_AF, dự đoán, Accuracy, Precision, Recall, F1, ROC-AUC, confusion matrix.
--  dataset: là dữ liệu gốc ban đầu, chưa qua tiền xử lý.
+-  dataset: là dữ liệu gốc ban đầu, chưa qua tiền xử lý
