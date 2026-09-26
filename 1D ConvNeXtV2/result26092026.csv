@@ -1,0 +1,61 @@
+========== CELL 3 ==========
+Device: cpu
+Loading model: /content/drive/MyDrive/AF_ConvNeXtV2/final_model_epoch20.pth
+Model loaded successfully
+
+========== MIT-AFDB INFERENCE ==========
+TEST 659/659
+Windows tested: 84334
+Inference time: 9.24 min
+
+========== WINDOW-LEVEL RESULTS ==========
+Accuracy           : 0.5911
+Precision          : 0.0000
+Recall/Sensitivity : 0.0000
+F1-score           : 0.0000
+ROC-AUC            : 0.4732
+
+Confusion Matrix:
+[[49851     0]
+ [34483     0]]
+TN=49851 | FP=0 | FN=34483 | TP=0
+
+========== PAPER-STYLE MIT-AFDB RESULTS ==========
+AF probability threshold : 0.75
+Window size              : 10 s
+Merge gap                : 40 s
+Reference AF duration    : 95.7861 h
+Predicted AF duration    : 0.0000 h
+Overlap AF duration      : 0.0000 h
+Duration Sensitivity     : 0.0000
+Duration Precision       : nan
+Duration F1              : nan
+
+========== PER-RECORD RESULTS ==========
+Record          Sens      Prec        F1
+04015         0.0000       N/A       N/A
+04043         0.0000       N/A       N/A
+04048         0.0000       N/A       N/A
+04126         0.0000       N/A       N/A
+04746         0.0000       N/A       N/A
+04908         0.0000       N/A       N/A
+04936         0.0000       N/A       N/A
+05091         0.0000       N/A       N/A
+05121         0.0000       N/A       N/A
+05261         0.0000       N/A       N/A
+06426         0.0000       N/A       N/A
+06453         0.0000       N/A       N/A
+06995         0.0000       N/A       N/A
+07162         0.0000       N/A       N/A
+07859         0.0000       N/A       N/A
+07879         0.0000       N/A       N/A
+07910         0.0000       N/A       N/A
+08215         0.0000       N/A       N/A
+08219         0.0000       N/A       N/A
+08378         0.0000       N/A       N/A
+08405         0.0000       N/A       N/A
+08434         0.0000       N/A       N/A
+08455         0.0000       N/A       N/A
+
+========== CELL 3 FINISHED ==========
+Results saved: /content/drive/MyDrive/AF_ConvNeXtV2/mit_afdb_test_results.npz
