@@ -4,6 +4,8 @@ Giai đoạn hiện tại ===> Train model AI sử dụng 1D ConvNextV2 trên c�
 https://www.mdpi.com/1424-8220/25/13/4109 ( link bài báo Atrial Fibrillation and Atrial Flutter Detection Using Deep Learning
 by Dimitri Kraft , andPeter Rumm )
 
+Em tham khảo cách triển khai 1D ConvNeXtV2 từ repository cfauchereau/ecg-convnext, đặc biệt là cấu trúc Block gồm Depthwise Conv1D, LayerNorm, pointwise expansion ×4, GELU, GRN và residual connection. ==> link github https://github.com/cfauchereau/ecg-convnext/blob/main/ecg_convnext.py
+
 Link code  GG colab em đang sử dụng:  https://colab.research.google.com/drive/1v9Sj8JcebEM4shU1_jjh4y0maMgZGHby?usp=sharing
 
 Mô hình hiện tại bao gồm:
