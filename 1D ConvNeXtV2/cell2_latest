@@ -1,0 +1,304 @@
+
+# ============================================================
+# CELL 2: TRAIN 1D CONVNEXTV2 ON PTB-XL + LTAFDB
+# PAPER: KRAFT & RUMM (2025), SENSORS 25, 4109
+# ============================================================
+import os,time,math,random,json
+import h5py,numpy as np,torch
+import torch.nn as nn
+from torch.utils.data import DataLoader,WeightedRandomSampler,Subset
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,roc_auc_score
+# ============================================================
+# 1. TRAINING CONFIGURATION
+# ============================================================
+SEED=42
+EPOCHS=20
+BATCH_SIZE=128
+LEARNING_RATE=3e-4
+WEIGHT_DECAY=1e-4
+TRAIN_SAMPLES_PER_EPOCH=40000
+VAL_SAMPLES_PER_EPOCH=20000
+USE_AUGMENTATION=True
+RESUME=True
+RUN_FULL_VALIDATION_AT_END=True
+SAVE_DIR="/content/drive/MyDrive/AF_ConvNeXtV2"
+LATEST_PATH=os.path.join(SAVE_DIR,"latest_model_ptbxl_ltafdb_v5.pth")
+BEST_PATH=os.path.join(SAVE_DIR,"best_model_ptbxl_ltafdb_v5.pth")
+FINAL_PATH=os.path.join(SAVE_DIR,"final_model_ptbxl_ltafdb_v5.pth")
+HISTORY_PATH=os.path.join(SAVE_DIR,"training_history_ptbxl_ltafdb_v5.json")
+os.makedirs(SAVE_DIR,exist_ok=True)
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+assert "ptbxl_dataset" in globals(),"Run the updated Cell 1 first."
+assert "ltafdb_dataset" in globals(),"LTAFDB dataset not found. Run Cell 1."
+assert "train_dataset" in globals() and "val_dataset" in globals(),"Run Cell 1 first."
+assert "ConvNeXtV2_1D" in globals(),"Model class not found. Run Cell 1."
+print("========== CELL 2 CONFIG ==========")
+print("Device:",DEVICE)
+print("Epochs:",EPOCHS)
+print("Batch size:",BATCH_SIZE)
+print("Learning rate:",LEARNING_RATE)
+print("Weight decay:",WEIGHT_DECAY)
+print("Training samples per epoch:",TRAIN_SAMPLES_PER_EPOCH)
+print("Validation samples per epoch:",VAL_SAMPLES_PER_EPOCH)
+print("Augmentation:",USE_AUGMENTATION)
+print("Resume:",RESUME)
+# ============================================================
+# 2. READ LABELS FOR BALANCED SAMPLING
+# FOUR STRATA: PTB-XL NON-AF, PTB-XL AF, LTAFDB NON-AF, LTAFDB AF
+# SAMPLING STRATEGY IS OUR ADAPTATION, NOT SPECIFIED BY PAPER
+# ============================================================
+with h5py.File(PTBXL_H5,"r") as f:
+    ptb_labels=np.asarray(f["y"][:],dtype=np.int64)[ptbxl_dataset.indices]
+ltaf_labels=[]
+with h5py.File(LTAFDB_H5,"r") as f:
+    for record_name in ltafdb_dataset.records:
+        ltaf_labels.append(np.asarray(f[record_name]["y"][:],dtype=np.int64))
+ltaf_labels=np.concatenate(ltaf_labels)
+assert len(ptb_labels)==len(ptbxl_dataset)
+assert len(ltaf_labels)==len(ltafdb_dataset)
+assert np.all(np.isin(ptb_labels,[0,1]))
+assert np.all(np.isin(ltaf_labels,[0,1]))
+all_train_labels=np.concatenate([ptb_labels,ltaf_labels])
+n_ptb=len(ptb_labels)
+n_ltaf=len(ltaf_labels)
+sampler_weights=np.zeros(len(all_train_labels),dtype=np.float64)
+for source_name,offset,labels in [("PTB-XL",0,ptb_labels),("LTAFDB",n_ptb,ltaf_labels)]:
+    for label in [0,1]:
+        local_indices=np.where(labels==label)[0]
+        count=len(local_indices)
+        assert count>0,f"Empty sampling group: {source_name}, class {label}"
+        sampler_weights[offset+local_indices]=1.0/(4.0*count)
+        print(f"{source_name} | Class {label} | Original windows: {count}")
+assert len(train_dataset)==len(sampler_weights)
+assert np.all(sampler_weights>0)
+print("Sampling target: 25% per source-class group.")
+# ============================================================
+# 3. BALANCED TRAINING DATALOADER
+# ============================================================
+train_sampler=WeightedRandomSampler(weights=torch.as_tensor(sampler_weights,dtype=torch.double),num_samples=TRAIN_SAMPLES_PER_EPOCH,replacement=True)
+train_loader=DataLoader(train_dataset,batch_size=BATCH_SIZE,sampler=train_sampler,num_workers=NUM_WORKERS,pin_memory=(DEVICE.type=="cuda"),drop_last=False)
+# ============================================================
+# 4. FIXED REPRESENTATIVE VALIDATION SUBSET
+# FULL SHDB-AF WILL BE EVALUATED AT THE END
+# ============================================================
+rng=np.random.default_rng(SEED)
+val_size=min(VAL_SAMPLES_PER_EPOCH,len(val_dataset))
+val_positions=np.sort(rng.choice(len(val_dataset),size=val_size,replace=False))
+val_subset=Subset(val_dataset,val_positions.tolist())
+val_small_loader=DataLoader(val_subset,batch_size=BATCH_SIZE,shuffle=False,num_workers=NUM_WORKERS,pin_memory=(DEVICE.type=="cuda"))
+val_full_loader=DataLoader(val_dataset,batch_size=BATCH_SIZE,shuffle=False,num_workers=NUM_WORKERS,pin_memory=(DEVICE.type=="cuda"))
+print("Balanced train batches:",len(train_loader))
+print("Validation subset windows:",len(val_subset))
+print("Full SHDB-AF windows:",len(val_dataset))
+# ============================================================
+# 5. VECTORIZED ECG AUGMENTATION
+# PAPER SECTION 3.7
+# ============================================================
+def augment_batch(x,y):
+    if not USE_AUGMENTATION:
+        return x
+    x=x.clone()
+    b,c,l=x.shape
+    device=x.device
+    dtype=x.dtype
+    # AMPLITUDE SCALING: p=0.75, factor 0.6 to 1.4
+    mask=(torch.rand(b,device=device)<0.75)
+    scale=0.6+0.8*torch.rand(b,device=device,dtype=dtype)
+    scale=torch.where(mask,scale,torch.ones_like(scale))
+    x=x*scale.view(b,1,1)
+    # OFFSET: p=0.75, range -0.2 to 0.2
+    mask=(torch.rand(b,device=device)<0.75)
+    offset=(torch.rand(b,device=device,dtype=dtype)*0.4-0.2)*mask.to(dtype)
+    x=x+offset.view(b,1,1)
+    # GAUSSIAN, PINK, BROWN NOISE: p=0.75
+    noise_mask=(torch.rand(b,device=device)<0.75)
+    if noise_mask.any():
+        raw_noise=torch.randn(b,l,device=device,dtype=dtype)
+        noise_kind=torch.randint(0,3,(b,),device=device)
+        spectrum=torch.fft.rfft(raw_noise,dim=-1)
+        freq=torch.arange(spectrum.shape[-1],device=device,dtype=dtype).clamp(min=1.0)
+        pink_scale=freq.pow(-0.5)
+        brown_scale=freq.pow(-1.0)
+        scale_matrix=torch.ones((b,spectrum.shape[-1]),device=device,dtype=dtype)
+        scale_matrix=torch.where((noise_kind==1).view(b,1),pink_scale.view(1,-1),scale_matrix)
+        scale_matrix=torch.where((noise_kind==2).view(b,1),brown_scale.view(1,-1),scale_matrix)
+        noise=torch.fft.irfft(spectrum*scale_matrix,n=l,dim=-1)
+        noise=noise/(noise.std(dim=-1,keepdim=True)+1e-6)
+        amplitude=torch.rand(b,device=device,dtype=dtype)*0.4-0.2
+        amplitude=amplitude*noise_mask.to(dtype)
+        x=x+noise.unsqueeze(1)*amplitude.view(b,1,1)
+    # TEMPORAL SHIFT: p=0.75, shift -625 to 625
+    shift_mask=(torch.rand(b,device=device)<0.75)
+    shifts=torch.randint(-625,626,(b,),device=device)
+    shifts=shifts*shift_mask.to(shifts.dtype)
+    positions=torch.arange(l,device=device).view(1,l)
+    gather_indices=(positions-shifts.view(b,1))%l
+    x=torch.gather(x,2,gather_indices.unsqueeze(1))
+    # BASELINE WANDER: p=0.25
+    # FREQUENCY AND AMPLITUDE BELOW ARE IMPLEMENTATION ASSUMPTIONS
+    wander_mask=(torch.rand(b,device=device)<0.25)
+    t=torch.arange(l,device=device,dtype=dtype)/125.0
+    frequency=0.05+0.45*torch.rand(b,device=device,dtype=dtype)
+    amplitude=0.2*torch.rand(b,device=device,dtype=dtype)
+    phase=2.0*math.pi*torch.rand(b,device=device,dtype=dtype)
+    baseline=amplitude.view(b,1)*torch.sin(2.0*math.pi*frequency.view(b,1)*t.view(1,l)+phase.view(b,1))
+    x=x+baseline.unsqueeze(1)*wander_mask.to(dtype).view(b,1,1)
+    # INVERT ECG POLARITY: p=0.20
+    invert_mask=(torch.rand(b,device=device)<0.20)
+    polarity=torch.where(invert_mask,-torch.ones(b,device=device,dtype=dtype),torch.ones(b,device=device,dtype=dtype))
+    x=x*polarity.view(b,1,1)
+    # ARTIFICIAL NOISE NEGATIVE EXAMPLES: p=0.05 FOR NON-AF
+    artificial_mask=(y==0)&(torch.rand(b,device=device)<0.05)
+    if artificial_mask.any():
+        artificial_noise=torch.randn(b,1,l,device=device,dtype=dtype)
+        artificial_noise=artificial_noise/(artificial_noise.std(dim=-1,keepdim=True)+1e-6)
+        artificial_amplitude=0.05+0.25*torch.rand(b,1,1,device=device,dtype=dtype)
+        x=torch.where(artificial_mask.view(b,1,1),artificial_noise*artificial_amplitude,x)
+    return x
+# ============================================================
+# 6. TRAIN ONE EPOCH
+# ============================================================
+def train_one_epoch(model,loader,criterion,optimizer,device,epoch):
+    model.train()
+    running_loss=0.0
+    correct=0
+    total=0
+    start=time.time()
+    for batch_idx,(x,y) in enumerate(loader,1):
+        x=x.to(device,non_blocking=True)
+        y=y.to(device,non_blocking=True)
+        x=augment_batch(x,y)
+        optimizer.zero_grad(set_to_none=True)
+        logits=model(x)
+        loss=criterion(logits,y)
+        loss.backward()
+        optimizer.step()
+        running_loss+=float(loss.item())*y.size(0)
+        predictions=logits.argmax(dim=1)
+        correct+=int((predictions==y).sum().item())
+        total+=int(y.size(0))
+        if batch_idx%25==0 or batch_idx==len(loader):
+            print(f"\rEpoch {epoch} | Train {batch_idx}/{len(loader)} | Loss={running_loss/total:.5f} | Acc={correct/total:.4f}",end="",flush=True)
+    print()
+    return running_loss/total,correct/total,(time.time()-start)/60
+# ============================================================
+# 7. VALIDATION METRICS
+# ============================================================
+@torch.no_grad()
+def validate(model,loader,criterion,device,description="VALIDATION"):
+    model.eval()
+    running_loss=0.0
+    total=0
+    all_true=[]
+    all_prob=[]
+    start=time.time()
+    for batch_idx,(x,y) in enumerate(loader,1):
+        x=x.to(device,non_blocking=True)
+        y=y.to(device,non_blocking=True)
+        logits=model(x)
+        loss=criterion(logits,y)
+        prob=torch.softmax(logits,dim=1)[:,1]
+        running_loss+=float(loss.item())*y.size(0)
+        total+=int(y.size(0))
+        all_true.append(y.cpu().numpy())
+        all_prob.append(prob.cpu().numpy())
+        if batch_idx%500==0 or batch_idx==len(loader):
+            print(f"\r{description}: {batch_idx}/{len(loader)}",end="",flush=True)
+    print()
+    y_true=np.concatenate(all_true)
+    y_prob=np.concatenate(all_prob)
+    y_pred=(y_prob>=0.5).astype(np.uint8)
+    result={}
+    result["loss"]=running_loss/total
+    result["accuracy"]=float(accuracy_score(y_true,y_pred))
+    result["precision"]=float(precision_score(y_true,y_pred,zero_division=0))
+    result["recall"]=float(recall_score(y_true,y_pred,zero_division=0))
+    result["f1"]=float(f1_score(y_true,y_pred,zero_division=0))
+    result["auc"]=float(roc_auc_score(y_true,y_prob)) if len(np.unique(y_true))==2 else float("nan")
+    result["prob_mean"]=float(np.mean(y_prob))
+    result["prob_std"]=float(np.std(y_prob))
+    result["predicted_af_percent"]=float(100*np.mean(y_pred))
+    result["minutes"]=(time.time()-start)/60
+    return result
+# ============================================================
+# 8. CREATE MODEL, LOSS, OPTIMIZER
+# ============================================================
+if not RESUME:
+    model=ConvNeXtV2_1D(num_classes=2).to(DEVICE)
+criterion=nn.CrossEntropyLoss()
+optimizer=torch.optim.AdamW(model.parameters(),lr=LEARNING_RATE,weight_decay=WEIGHT_DECAY)
+start_epoch=1
+best_auc=-1.0
+history=[]
+if RESUME:
+    assert os.path.isfile(LATEST_PATH),"Latest checkpoint not found."
+    checkpoint=torch.load(LATEST_PATH,map_location=DEVICE,weights_only=False)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+    start_epoch=int(checkpoint["epoch"])+1
+    best_auc=float(checkpoint.get("best_auc",-1.0))
+    history=checkpoint.get("history",[])
+    print("Resuming from epoch:",start_epoch)
+print("\n========== TRAINING START ==========")
+print("Model parameters:",sum(p.numel() for p in model.parameters()))
+# ============================================================
+# 9. TRAINING LOOP
+# ============================================================
+for epoch in range(start_epoch,EPOCHS+1):
+    print("\n"+"="*65)
+    print(f"EPOCH {epoch}/{EPOCHS}")
+    print("="*65)
+    train_loss,train_acc,train_minutes=train_one_epoch(model,train_loader,criterion,optimizer,DEVICE,epoch)
+    val_result=validate(model,val_small_loader,criterion,DEVICE,"SHDB-AF")
+    current_auc=val_result["auc"]
+    print(f"TRAIN | Loss={train_loss:.6f} | Acc={train_acc:.4f} | Time={train_minutes:.2f} min")
+    print(f"VAL   | Loss={val_result['loss']:.6f} | Acc={val_result['accuracy']:.4f}")
+    print(f"VAL   | Precision={val_result['precision']:.4f} | Recall={val_result['recall']:.4f}")
+    print(f"VAL   | F1={val_result['f1']:.4f} | AUC={current_auc:.4f}")
+    print(f"VAL   | AF probability mean={val_result['prob_mean']:.5f}")
+    print(f"VAL   | AF probability std={val_result['prob_std']:.5f}")
+    print(f"VAL   | Predicted AF percentage={val_result['predicted_af_percent']:.2f}%")
+    epoch_result={"epoch":epoch,"train_loss":float(train_loss),"train_acc":float(train_acc),"val":val_result}
+    history.append(epoch_result)
+    improved=bool(np.isfinite(current_auc) and current_auc>best_auc)
+    if improved:
+        best_auc=float(current_auc)
+    checkpoint={"epoch":epoch,"model_state_dict":model.state_dict(),"optimizer_state_dict":optimizer.state_dict(),"best_auc":best_auc,"history":history,"sampling":"25 percent per source-class stratum","train_samples_per_epoch":TRAIN_SAMPLES_PER_EPOCH,"augmentation":USE_AUGMENTATION,"learning_rate":LEARNING_RATE,"input_fs":125,"window_sec":10,"window_samples":1250,"classes":["non-AF/AFL","AF/AFL"]}
+    torch.save(checkpoint,LATEST_PATH)
+    print("LATEST CHECKPOINT SAVED:",LATEST_PATH)
+    if improved:
+        torch.save(checkpoint,BEST_PATH)
+        print(f"NEW BEST MODEL SAVED | AUC={best_auc:.4f}")
+    with open(HISTORY_PATH,"w") as file:
+        json.dump(history,file,indent=2)
+    if val_result["prob_std"]<0.01:
+        print("WARNING: Low prediction probability variation. Check for possible model collapse.")
+print("\n========== TRAINING FINISHED ==========")
+print("Best validation subset AUC:",best_auc)
+print("Latest checkpoint:",LATEST_PATH)
+print("Best checkpoint:",BEST_PATH)
+# ============================================================
+# 10. FINAL VALIDATION WITH THE BEST MODEL
+# ============================================================
+if os.path.isfile(BEST_PATH):
+    best_checkpoint=torch.load(BEST_PATH,map_location=DEVICE,weights_only=False)
+    model.load_state_dict(best_checkpoint["model_state_dict"])
+    print("Loaded BEST model from epoch:",best_checkpoint["epoch"])
+    if RUN_FULL_VALIDATION_AT_END:
+        print("\nRunning FULL SHDB-AF validation...")
+        full_result=validate(model,val_full_loader,criterion,DEVICE,"FULL SHDB-AF")
+        print("\n========== FULL VALIDATION RESULTS ==========")
+        for key,value in full_result.items():
+            print(f"{key}: {value:.6f}")
+    else:
+        full_result=None
+    final_checkpoint={"epoch":int(best_checkpoint["epoch"]),"model_state_dict":model.state_dict(),"best_auc":best_auc,"full_validation":full_result,"model_parameters":sum(p.numel() for p in model.parameters()),"input_fs":125,"window_sec":10,"window_samples":1250,"classes":["non-AF/AFL","AF/AFL"]}
+    torch.save(final_checkpoint,FINAL_PATH)
+    print("\nFINAL MODEL SAVED:",FINAL_PATH)
+else:
+    print("No best checkpoint available. Inspect validation results.")
+print("\n========== CELL 2 FINISHED ==========")
