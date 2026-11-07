@@ -1,11 +1,7 @@
-
-
 # ECG AF/AFL Detection Using 1D ViT-Small
-
-This project implements a 1D Vision Transformer (ViT-Small) for detecting Atrial Fibrillation (AF) and Atrial Flutter (AFL) from single-lead ECG signals.
+The structure for now includes cell 1 and cell 2
 
 ## Cell 1: Data Loading and Model Architecture
-
 - Loads four ECG datasets: PTB-XL, LTAFDB V3, SHDB-AF, and MIT-AFDB.
 - Prepares single-lead ECG signals sampled at 125 Hz with 10-second windows (1,250 samples).
 - Implements 1D ViT-Small with:
