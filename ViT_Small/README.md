@@ -1,7 +1,7 @@
 # ECG AF/AFL Detection Using 1D ViT-Small
 The structure for now includes cell 1 and cell 2
 ## Cell 1: Data Loading and Model Architecture
-- Loads four ECG datasets: PTB-XL, LTAFDB V3[1], SHDB-AF, and MIT-AFDB.
+- Loads four preprocessed ECG datasets stored in HDF5: PTB-XL, LTAFDB , SHDB-AF, and MIT-AFDB.
 - Prepares single-lead ECG signals sampled at 125 Hz with 10-second windows (1,250 samples).
 - Implements 1D ViT-Small with:
   - 12 Transformer blocks
@@ -29,27 +29,8 @@ The structure for now includes cell 1 and cell 2
 - Supports automatic checkpoint saving and training resumption.
 - Saves the latest, best, and final model checkpoints to Google Drive.
 ## Dataset Configuration
-| Dataset | Purpose |
-|---|---|
-| PTB-XL | Training |
-| LTAFDB V3 | Training |
-| SHDB-AF | Validation |
-| MIT-AFDB | Independent testing (reserved) |
+- Training Dataset: PTB-XL, LTAFDB
+- Validating Dataset: SHDBAF
+- Testing Dataset: MIT-AFDB
 
-## Frameworks
 
-- Python
-- PyTorch
-- NumPy
-- h5py
-- einops
-- scikit-learn
-- Google Colab
-
-## Model Checkpoints
-
-Training checkpoints are saved in:
-
-`AF_ConvNeXtV2/ViT_Small/`
-
-The training pipeline supports resuming from the latest completed epoch.
