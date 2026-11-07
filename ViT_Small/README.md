@@ -1,1 +1,64 @@
 
+
+# ECG AF/AFL Detection Using 1D ViT-Small
+
+This project implements a 1D Vision Transformer (ViT-Small) for detecting Atrial Fibrillation (AF) and Atrial Flutter (AFL) from single-lead ECG signals.
+
+## Cell 1: Data Loading and Model Architecture
+
+- Loads four ECG datasets: PTB-XL, LTAFDB V3, SHDB-AF, and MIT-AFDB.
+- Prepares single-lead ECG signals sampled at 125 Hz with 10-second windows (1,250 samples).
+- Implements 1D ViT-Small with:
+  - 12 Transformer blocks
+  - 6 attention heads
+  - 384 embedding dimensions
+  - 25 patches (50 samples per patch)
+  - Learnable positional embeddings and CLS token
+- Creates PyTorch DataLoaders.
+- Verifies dataset integrity, input shapes, and model forward propagation.
+
+## Cell 2: Model Training and Validation
+
+- Trains ViT-Small using PTB-XL and LTAFDB V3.
+- Performs binary classification:
+  - Class 0: Non-AF/AFL
+  - Class 1: AF/AFL
+- Training configuration:
+  - Optimizer: AdamW
+  - Learning rate: 0.0003
+  - Weight decay: 0.0001
+  - Loss function: CrossEntropyLoss
+  - Batch size: 128
+  - Epochs: 20
+- Applies ECG data augmentation.
+- Validates using SHDB-AF.
+- Evaluates Accuracy, Precision, Recall, F1-score, and ROC-AUC.
+- Supports automatic checkpoint saving and training resumption.
+- Saves the latest, best, and final model checkpoints to Google Drive.
+
+## Dataset Configuration
+
+| Dataset | Purpose |
+|---|---|
+| PTB-XL | Training |
+| LTAFDB V3 | Training |
+| SHDB-AF | Validation |
+| MIT-AFDB | Independent testing (reserved) |
+
+## Frameworks
+
+- Python
+- PyTorch
+- NumPy
+- h5py
+- einops
+- scikit-learn
+- Google Colab
+
+## Model Checkpoints
+
+Training checkpoints are saved in:
+
+`AF_ConvNeXtV2/ViT_Small/`
+
+The training pipeline supports resuming from the latest completed epoch.
